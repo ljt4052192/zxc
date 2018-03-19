@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+ -->
+
+<mapper namespace="com.jk.mapper.house.HouseMapper">
+
+	<!--查询房源的总条数  -->
+	<select id="queryHouseCount" resultType="long" parameterType="com.jk.model.housePropertyCollection.SellHouseResource">
+		SELECT
+		count(*)
+		FROM
+		t_sell_house_resource a
+		WHERE
+		1=1
+		/*标题模糊查询*/
+		<if test="title != null and title != ''">
+			and a.title like '%${title}%'
+		</if>
+		/*地区三级联动查询 省*/
+		<if test="province != null and province != -1">
+			and a.province = #{province}
+		</if>
+		/*地区三级联动查询 市*/
+		<if test="city != null and city != -1">
+			and a.city = #{city}
+		</if>
+		/*地区三级联动查询 县*/
+		<if test="county != null and county != -1">
+			and a.county = #{county}
+		</if>
+		/*房屋面积查询*/
+			<if test="startArea != null ">
+                and a.area >= ${startArea}
+            </if>
+            <if test="endArea != null ">
+                and a.area  &lt;= ${endArea}
+            </if>
+		  /*建造年代查询*/
+         <if test="starttime != null and starttime != -1">
+                and a.building_time > #{starttime}
+            </if>
+
+            <if test="endtime != null and endtime != -1">
+                and a.building_time &lt; #{endtime}
+            </if>
+		  /*房屋几室几厅几位搜索*/
+          /*房屋几室*/
+          <if test="room != null and room != -1">
+              and a.room =  ${room}
+          </if>
+          /*房屋几厅搜索*/
+          <if test="hall != null and hall != -1">
+              and a.hall =  ${hall}
+          </if>
+          /*房屋几位搜索*/
+          <if test="toilet != null and toilet != -1">
+              and a.toilet =  ${toilet}
+          </if>
+          /*房屋装修情况*/
+		 <if test="decorate != null and decorate !='' ">
+            and a.decorate = #{decorate}
+        </if>
+	</select>
+
+
+
+
+
+	<!--查询请假每页的展示数据  -->
+	<select id="queryHousePageList" resultType="com.jk.model.housePropertyCollection.SellHouseResource">
+		SELECT
+		a.id,
+		a.title,
+		d.name AS NAME ,
+		ar.full_name AS fullname,
+		a.area,
+		a.building_time AS buildingTime,
+		a.room,
+		a.price,
+		a.hall,
+		a.toilet,
+		b.name AS decoratename
+		FROM
+		t_sell_house_resource a,
+		t_decorate b,
+		xx_area ar,
+		t_community d
+		WHERE
+		a.decorate= b.id
+
+		AND a.community=d.id
+
+
+		AND a.`province`= ar.`id`
+		/*标题模糊查询*/
+		<if test="sHouseResource.title != null and sHouseResource.title != ''">
+			and a.title like '%${sHouseResource.title}%'
+		</if>
+		/*地区三级联动查询 省*/
+		<if test="sHouseResource.province != null and sHouseResource.province != -1">
+			and a.province = #{sHouseResource.province}
+		</if>
+		/*地区三级联动查询 市*/
+		<if test="sHouseResource.city != null and sHouseResource.city != -1">
+			and a.city = #{sHouseResource.city}
+		</if>
+		/*地区三级联动查询 县*/
+			<if test="sHouseResource.county != null and sHouseResource.county != -1">
+                and a.county = #{sHouseResource.county}
+            </if>
+                /*房屋面积查询*/
+		    <if test="sHouseResource.startArea != null">
+                 and a.area >=${sHouseResource.startArea}
+             </if>
+             <if test="sHouseResource.endArea != null">
+                 and a.area  &lt;=${sHouseResource.endArea}
+             </if>
+
+		 /*建造年代查询*/
+           <if test="sHouseResource.starttime != null and sHouseResource.starttime != -1">
+                and a.building_time >= #{sHouseResource.starttime}
+            </if>
+
+            <if test="sHouseResource.endtime != null and sHouseResource.endtime != -1">
+                and a.building_time &lt;= #{sHouseResource.endtime}
+            </if>
+		 /*房屋几室几厅几位搜索*/
+         /*房屋几室*/
+         <if test="sHouseResource.room != null and sHouseResource.room != -1">
+             and a.room = ${sHouseResource.room}
+         </if>
+         /*房屋几厅搜索*/
+         <if test="sHouseResource.hall != null and sHouseResource.hall != -1">
+             and a.hall =  ${sHouseResource.hall}
+         </if>
+         /*房屋几位搜索*/
+         <if test="sHouseResource.toilet != null and sHouseResource.toilet != -1">
+             and a.toilet =  ${sHouseResource.toilet}
+         </if>
+         /*房屋装修情况*/
+		<if test="sHouseResource.decorate != null and sHouseResource.decorate !='' ">
+            and a.decorate = #{sHouseResource.decorate}
+        </if>
+		limit
+		#{start} , #{end}
+	</select>
+
+
+<!--删除房屋信息-->
+
+	<delete id="deleteHouse" >
+		delete from t_sell_house_resource where  id = #{houid}
+	</delete>
+
+
+<!--查询房屋的装修类型-->
+	<select id="selectDecorate" resultType="com.jk.model.housePropertyCollection.Decorate">
+		SELECT a.id,a.name AS decoratename FROM t_decorate a
+	</select>
+
+<!--查询省-->
+	<select id="selectProvince" resultType="com.jk.model.housePropertyCollection.XxArea">
+		SELECT id,NAME FROM xx_area WHERE parent = 0
+	</select>
+
+
+	<!--根据省查询下面的地级市-->
+	<select id="selectArea2" resultType="com.jk.model.housePropertyCollection.XxArea">
+		SELECT id,NAME FROM xx_area WHERE parent = #{pid}
+	</select>
+
+
+
+
+</mapper>

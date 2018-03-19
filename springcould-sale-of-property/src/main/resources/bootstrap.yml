@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: springcolud-sale-of-property
+  cloud:
+    config:
+      label: master
+      profile: dev
+      discovery:
+        enabled: true
+        service-id: config-server
+  redis:
+    database: 5
+    host: localhost
+    password:
+    port: 6379
+    timeout: 3000
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka/
+server:
+  port: ${port:8005}
+management:
+  security:
+    enabled: false
+

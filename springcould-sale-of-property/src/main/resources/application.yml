@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://rm-2zebj150s7a6v277zqo.mysql.rds.aliyuncs.com:3306/1708btwo?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 1708bROOT
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka/
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+
